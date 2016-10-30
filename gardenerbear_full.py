@@ -96,7 +96,7 @@ class MyStreamer(TwythonStreamer):
                 if "drink water" in str.lower(data['text'].encode('utf-8')):
                     log_message = "%s tweeted %s at %s" % (data['user']['screen_name'].encode('utf-8'), data['text'].encode('utf-8'), datetime.now().isoformat())
                     writelog(log_message)
-                    sensorcheck()
+                    sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
                 # code to water plant
         # Want to disconnect after the first result?
         #self.disconnect()
@@ -149,10 +149,9 @@ def randomTweet(user_tweeted, water_status):
         photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
         camera.capture(photo_path)
         time.sleep(3)
-        api.update_status(status=message)
         with open(photo_path, 'rb') as photo:
             response = api.upload_media(media=photo)
-            api.update_status_with_media(media_ids=[response['media_id']], status="See for yourself")
+            api.update_status(media_ids=[response['media_id']], status=message)
         return None
     except IOError:
         return None
