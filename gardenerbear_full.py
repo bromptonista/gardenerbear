@@ -69,9 +69,9 @@ def writelog(message):
     '''This function writes to a logfile, and if verbose is true, it will also print
     the message to the screen'''
     if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
-    file = open(logfile, 'a') # Open the logfile for writing in append mode (so we dont overwrite previous log entries)
-    file.write(str(message)) # Write the message to the file
-    file.close # Close the file
+    with open(logfile, "a") as file: # Open the logfile for writing in append mode
+        file.write(str(message)) # Write the message to the file
+
 
 # This is our sendEmail function
 def sendEmail(smtp_message):
@@ -219,7 +219,6 @@ def water_the_plants():
 try:
     while True:
         twittercheck()
-
 
 except KeyboardInterrupt:
     GPIO.cleanup()
