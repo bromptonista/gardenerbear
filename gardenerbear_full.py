@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # This is a Python script that lets you use a raspberry pi to water your plants
 # The live implementation of the script is a modified ELC My First Talking Ted
 #
@@ -34,9 +35,9 @@ from auth import (
     message_alive
 )
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-logfile = 'gardenerbear_log.txt' # Define the location of the logfile
 
 # Define some variables to be used later on in our script
+logfile = 'gardenerbear_log.txt' # Define the location of the logfile
 
 # Do we want emails or tweets, do we want log messages printed on screen
 email_bot_active = 0 # 0 is inactive, 1 active
@@ -57,7 +58,7 @@ channel_power = 18
 
 # Define the GPIO pins that we have our relay module connected to
 channel_relayin1 = 14
-#channel_relayin2 = 15
+channel_relayin2 = 15
 
 # Our dummy variables
 water = 0
@@ -137,11 +138,13 @@ def randomTweet(user_tweeted, water_status):
         log_message = (tweetsList[randomChoice]), cputemp
         writelog(log_message)
         if water_status == 'dry':
-            message = "Dear @%s, %s need watering and my CPU temperature is %s" % (user_tweeted, tweetsList[randomChoice], cputemp)
+            message = "Dear @%s, %s BTW, I need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice], cputemp)
+            sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
         elif water_status == 'wet':
-            message = "Dear @%s, %s don't need watering and my CPU temperature is %s" % (user_tweeted, tweetsList[randomChoice], cputemp)
+            message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice], cputemp)
+            sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
         camera = PiCamera()
@@ -149,17 +152,19 @@ def randomTweet(user_tweeted, water_status):
         photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
         camera.capture(photo_path)
         time.sleep(3)
+        camera.close()
         with open(photo_path, 'rb') as photo:
             response = api.upload_media(media=photo)
             api.update_status(media_ids=[response['media_id']], status=message)
         return None
     except IOError:
-        return None
         camera.close()
+        return None
 
 # sensor check function
 def sensorcheck(user_tweeted):
 # code to check sensor
+    global water, email_warning_wet_sent, email_warning_dry_sent
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
     # Set the GPIO pin to an output
@@ -195,37 +200,39 @@ def sensorcheck(user_tweeted):
             water = 0
     GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     if water:
-            time.sleep(dry_poll)
             log_message = "Waiting %s seconds" % dry_poll
             writelog(log_message)
+            time.sleep(dry_poll)
+            water_the_plants()
             if email_bot_active:
                 email_warning_wet_sent = 0 #
     else:
-            time.sleep(wet_poll)
-            time.sleep(dry_poll)
             log_message = "Waiting %s seconds" % wet_poll
             writelog(log_message)
+            time.sleep(wet_poll)
             if email_bot_active:
                 email_warning_dry_sent = 0
+    return None
+
 # watering function
 def water_the_plants():
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
     # Set the GPIO relay pin to an output
-    #GPIO.setup(channel_relayin1, GPIO.OUT)
-    GPIO.setup(channel_relayin2, GPIO.OUT)
-    GPIO.output(channel_relayin2, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
+    GPIO.setup(channel_relayin1, GPIO.OUT)
+    #GPIO.setup(channel_relayin2, GPIO.OUT)
+    GPIO.output(channel_relayin1, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
     watering_time = 10
     log_message = "Watering %s seconds" % watering_time
     writelog(log_message)
     time.sleep(watering_time) #  seconds watering
-    #GPIO.output(channel_relayin1, GPIO.LOW)  # relay in 1 on, should turn off pump
-    GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
+    GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
+    #GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
 
 try:
     while True:
         twittercheck()
-        sensorcheck()
+
 
 except KeyboardInterrupt:
     GPIO.cleanup()
