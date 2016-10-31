@@ -192,11 +192,7 @@ def sensorcheck(user_tweeted):
                 email_warning_wet_sent = 1 # only email once
             if twitter_bot_active:
                 randomTweet(user_tweeted, water_status = 'wet')
-            if water:
-                # this part of the script must be expanded to power off the relay?
-                log_message = ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Turn off the water!"))
-                writelog(log_message)
-                water = 0
+            water = 0
     GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     if water:
             time.sleep(dry_poll)
