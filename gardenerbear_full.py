@@ -138,12 +138,12 @@ def randomTweet(user_tweeted, water_status):
         log_message = (tweetsList[randomChoice]), cputemp
         writelog(log_message)
         if water_status == 'dry':
-            message = "Dear @%s, %s BTW, I need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice], cputemp)
-            sys.stdout.write("{} {}\n".format(len(message), message))
+            message = "Dear @%s, %s BTW, I need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
+
             log_message = "Tweeted %s" % message
             writelog(log_message)
         elif water_status == 'wet':
-            message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice], cputemp)
+            message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
             sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
@@ -199,19 +199,6 @@ def sensorcheck(user_tweeted):
                 randomTweet(user_tweeted, water_status = 'wet')
             water = 0
     GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
-    if water:
-            log_message = "Waiting %s seconds" % dry_poll
-            writelog(log_message)
-            time.sleep(dry_poll)
-            water_the_plants()
-            if email_bot_active:
-                email_warning_wet_sent = 0 #
-    else:
-            log_message = "Waiting %s seconds" % wet_poll
-            writelog(log_message)
-            time.sleep(wet_poll)
-            if email_bot_active:
-                email_warning_dry_sent = 0
     return None
 
 # watering function
@@ -219,15 +206,15 @@ def water_the_plants():
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
     # Set the GPIO relay pin to an output
-    GPIO.setup(channel_relayin1, GPIO.OUT)
-    #GPIO.setup(channel_relayin2, GPIO.OUT)
+    #GPIO.setup(channel_relayin1, GPIO.OUT)
+    GPIO.setup(channel_relayin2, GPIO.OUT)
     GPIO.output(channel_relayin1, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
-    watering_time = 10
+    watering_time = 20
     log_message = "Watering %s seconds" % watering_time
     writelog(log_message)
     time.sleep(watering_time) #  seconds watering
-    GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
-    #GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
+    #GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
+    GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
 
 try:
     while True:
