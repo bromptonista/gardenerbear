@@ -208,7 +208,7 @@ def water_the_plants():
     # Set the GPIO relay pin to an output
     #GPIO.setup(channel_relayin1, GPIO.OUT)
     GPIO.setup(channel_relayin2, GPIO.OUT)
-    GPIO.output(channel_relayin1, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
+    GPIO.output(channel_relayin2, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
     watering_time = 20
     log_message = "Watering %s seconds" % watering_time
     writelog(log_message)
