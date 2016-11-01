@@ -17,9 +17,9 @@ from picamera import PiCamera # need this to take pictures
 from datetime import datetime
 from twython import Twython # need this for tweeting
 from twython import TwythonStreamer # need this for monitoring Twitter for commands
-file = open("gardenerbear_log.txt", "w") #stores data file in same directory as this program file
+os.chdir(os.path.dirname(sys.argv[0])) # sets script working directory
 
-# Import all our secret stuff from the auth.py file; you have to change the auth-example.py and save it as auth.py
+# Import all our secret stuff from the auth.py file; you have to change the settings!!!
 from auth import (
     consumer_key,
     consumer_secret,
@@ -34,7 +34,6 @@ from auth import (
     message_dead,
     message_alive
 )
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 # Define some variables to be used later on in our script
 logfile = 'gardenerbear_log.txt' # Define the location of the logfile
@@ -131,7 +130,7 @@ def PiCPUtemp():
 def randomTweet(user_tweeted, water_status):
     try:
         api = Twython(consumer_key, consumer_secret, access_token, access_token_secret)
-        tweetsFile = open(os.path.join(__location__,'tweets.txt'),'r')
+        tweetsFile = open('tweets.txt'),'r')
         tweetsList = tweetsFile.readlines()
         tweetsFile.close()
         randomChoice = random.randrange(len(tweetsList))
