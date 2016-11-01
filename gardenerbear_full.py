@@ -138,7 +138,6 @@ def randomTweet(user_tweeted, water_status):
         writelog(log_message)
         if water_status == 'dry':
             message = "Dear @%s, %s BTW, I need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
-
             log_message = "Tweeted %s" % message
             writelog(log_message)
         elif water_status == 'wet':
@@ -225,7 +224,7 @@ def water_the_plants():
     #GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
     GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
     water = 0
-
+    return None
 try:
     while True:
         twittercheck()
