@@ -115,7 +115,7 @@ def twittercheck():
         writelog(log_message)
         stream.statuses.filter(track=['drink water','are you thirsty'])
     else:
-        log_message = "Twitter is off, ignoring"
+        log_message = "%s, Twitter is off, ignoring" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         writelog(log_message)
 
 # CPU temp function
@@ -146,15 +146,25 @@ def randomTweet(user_tweeted, water_status):
             sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
+        log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
         camera = PiCamera()
+        log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
         timestamp = datetime.now().isoformat()
         photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
+        log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
         camera.capture(photo_path)
         time.sleep(3)
         camera.close()
+        log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
         with open(photo_path, 'rb') as photo:
             response = api.upload_media(media=photo)
             api.update_status(media_ids=[response['media_id']], status=message)
+            log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
         return None
     except IOError:
         camera.close()
@@ -185,7 +195,7 @@ def sensorcheck(user_tweeted):
             if not water:
                 log_message = ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Turn on the water!"))
                 writelog(log_message)
-                water_the_plants()    
+                water_the_plants()
     else: # soil is moist
             print ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Wet"))
             if email_bot_active:
