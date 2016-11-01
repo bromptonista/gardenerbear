@@ -17,7 +17,7 @@ from picamera import PiCamera # need this to take pictures
 from datetime import datetime
 from twython import Twython # need this for tweeting
 from twython import TwythonStreamer # need this for monitoring Twitter for commands
-os.chdir(os.path.dirname(sys.argv[0])) # sets script working directory
+os.chdir(os.path.dirname(os.path.abspath(sys.argv[0]))) # sets script working directory
 
 # Import all our secret stuff from the auth.py file; you have to change the settings!!!
 from auth import (
@@ -37,7 +37,7 @@ from auth import (
 
 # Define some variables to be used later on in our script
 logfile = 'gardenerbear_log.txt' # Define the location of the logfile
-
+tweetsdb = 'tweets.txt' # Define the location of the tweets file
 # Do we want emails or tweets, do we want log messages printed on screen
 email_bot_active = 0 # 0 is inactive, 1 active
 twitter_bot_active = 1 # 0 is inactive, 1 active
@@ -68,10 +68,9 @@ def writelog(message):
     '''This function writes to a logfile, and if verbose is true, it will also print
     the message to the screen'''
     if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
-    messagetolog = "%s\n" % message
+    messagetolog = "%s\n" % str(message)
     with open(logfile, "a+") as file: # Open the logfile for writing in append mode
         file.write(messagetolog) # Write the message to the file
-
 
 # This is our sendEmail function
 def sendEmail(smtp_message):
@@ -130,7 +129,7 @@ def PiCPUtemp():
 def randomTweet(user_tweeted, water_status):
     try:
         api = Twython(consumer_key, consumer_secret, access_token, access_token_secret)
-        tweetsFile = open('tweets.txt'),'r')
+        tweetsFile = open(tweetsdb,'r')
         tweetsList = tweetsFile.readlines()
         tweetsFile.close()
         randomChoice = random.randrange(len(tweetsList))
@@ -186,8 +185,7 @@ def sensorcheck(user_tweeted):
             if not water:
                 log_message = ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Turn on the water!"))
                 writelog(log_message)
-                water_the_plants()
-                water = 1
+                water_the_plants()    
     else: # soil is moist
             print ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Wet"))
             if email_bot_active:
@@ -197,12 +195,13 @@ def sensorcheck(user_tweeted):
                 email_warning_wet_sent = 1 # only email once
             if twitter_bot_active:
                 randomTweet(user_tweeted, water_status = 'wet')
-            water = 0
     GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     return None
 
 # watering function
 def water_the_plants():
+    global water
+    water = 1
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
     # Set the GPIO relay pin to an output
@@ -215,6 +214,7 @@ def water_the_plants():
     time.sleep(watering_time) #  seconds watering
     #GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
     GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
+    water = 0
 
 try:
     while True:
