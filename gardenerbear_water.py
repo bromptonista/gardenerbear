@@ -69,11 +69,9 @@ def writelog(message):
     '''This function writes to a logfile, and if verbose is true, it will also print
     the message to the screen'''
     if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
-    file = open(logfile, 'a') # Open the logfile for writing in append mode (so we dont overwrite previous log entries)
-    logstring = "%s,%s\n" % (str(time.strftime('%X %x %Z')), message.encode('ascii', 'ignore')) # Get the time (in HH:MM:SS MM/DD/YY CDT format),
-    # and convert the message to straight ASCII (as twitter msgs can contain unicode chars)
-    file.write(logstring) # Write the string to the file
-    file.close # Close the file
+    with open(logfile, "a+") as file: # Open the logfile for writing in append mode
+        file.write("%s\n" % message) # Write the message to the file
+
 
 # This is our sendEmail function
 def sendEmail(smtp_message):

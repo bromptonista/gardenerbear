@@ -69,8 +69,8 @@ def writelog(message):
     '''This function writes to a logfile, and if verbose is true, it will also print
     the message to the screen'''
     if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
-    with open(logfile, "a") as file: # Open the logfile for writing in append mode
-        file.write(str(message)) # Write the message to the file
+    with open(logfile, "a+") as file: # Open the logfile for writing in append mode
+        file.write("%s\n" % message) # Write the message to the file
 
 
 # This is our sendEmail function
@@ -112,7 +112,7 @@ def twittercheck():
         api = Twython(consumer_key, consumer_secret, access_token, access_token_secret)
         stream = MyStreamer(consumer_key, consumer_secret, access_token, access_token_secret)
         # Get the stream
-        log_message = "Tracking Twitter"
+        log_message = "%s, Tracking Twitter" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         writelog(log_message)
         stream.statuses.filter(track=['drink water','are you thirsty'])
     else:
