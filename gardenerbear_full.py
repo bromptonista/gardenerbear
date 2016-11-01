@@ -185,7 +185,7 @@ def sensorcheck(user_tweeted):
             if not water:
                 log_message = ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Turn on the water!"))
                 writelog(log_message)
-                water_the_plants()    
+                water_the_plants()
     else: # soil is moist
             print ','.join((time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Wet"))
             if email_bot_active:
@@ -215,6 +215,7 @@ def water_the_plants():
     #GPIO.output(channel_relayin1, GPIO.HIGH)  # relay in 1 on, should turn off pump
     GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
     water = 0
+    return None
 
 try:
     while True:
