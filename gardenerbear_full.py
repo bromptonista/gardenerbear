@@ -225,6 +225,10 @@ def water_the_plants():
     GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
     water = 0
     return None
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 try:
     while True:
         twittercheck()
