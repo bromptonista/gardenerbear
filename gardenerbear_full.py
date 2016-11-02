@@ -97,9 +97,9 @@ class MyStreamer(TwythonStreamer):
             if "drink water" in str.lower(data['text'].encode('utf-8')):
                 sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
     # Want to disconnect after the first result?
-#self.disconnect()
-def on_error(self, status_code, data):
-    log_message = status_code, data
+    #self.disconnect()
+    def on_error(self, status_code, data):
+        log_message = status_code, data
         writelog(log_message)
         GPIO.cleanup()
 # This is our Twitter checking function
@@ -150,40 +150,32 @@ def randomTweet(user_tweeted, water_status):
             log_message = "Tweeted %s" % message
             writelog(log_message)
         if camera_active:
+            log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
             camera = PiCamera()
+            log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
             timestamp = datetime.now().isoformat()
             photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
+            log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
             camera.capture(photo_path)
             time.sleep(3)
             camera.close()
+            log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
             with open(photo_path, 'rb') as photo:
                 response = api.upload_media(media=photo)
                 api.update_status(media_ids=[response['media_id']], status=message)
+                log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                writelog(log_message)
         else:
             api.update_status(status=message)
-        
-        log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        writelog(log_message)
-        camera = PiCamera()
-        log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        writelog(log_message)
-        timestamp = datetime.now().isoformat()
-        photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
-        log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        writelog(log_message)
-        camera.capture(photo_path)
-        time.sleep(3)
-        camera.close()
-        log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        writelog(log_message)
-        with open(photo_path, 'rb') as photo:
-            response = api.upload_media(media=photo)
-            api.update_status(media_ids=[response['media_id']], status=message)
             log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             writelog(log_message)
         return None
     except IOError:
-        camera.close()
+        if camera_active: camera.close()
         return None
 
 # sensor check function
