@@ -192,12 +192,12 @@ def sensorcheck(user_tweeted):
     time.sleep(1) # Wait for digital sensor to settle - calibrate your potentiometer, make sure both LEDs light up when in water and only one when dry
     if GPIO.input(channel_digital): # soil is dry if true
         log_message = "Dry"
+        writelog(log_message)
+        if email_bot_active:
+            sendEmail(message_dead) # send email
+            log_message = "Sent email that plant is dry"
             writelog(log_message)
-            if email_bot_active:
-                sendEmail(message_dead) # send email
-                log_message = "Sent email that plant is dry"
-                writelog(log_message)
-                email_warning_dry_sent = 1 # only email once
+            email_warning_dry_sent = 1 # only email once
         if twitter_bot_active:
             randomTweet(user_tweeted, water_status = 'dry')
             if not water:
@@ -205,18 +205,18 @@ def sensorcheck(user_tweeted):
                 writelog(log_message)
                 water_the_plants()
                 water_status = 'dry'
-else: # soil is moist
-    log_message = "Wet"
+    else: # soil is moist
+        log_message = "Wet"
         writelog(log_message)
-            if email_bot_active:
-                sendEmail(message_alive) # send email
-                log_message = "Sent email that plant is wet"
-                writelog(log_message)
-                email_warning_wet_sent = 1 # only email once
+        if email_bot_active:
+            sendEmail(message_alive) # send email
+            log_message = "Sent email that plant is wet"
+            writelog(log_message)
+            email_warning_wet_sent = 1 # only email once
         if twitter_bot_active:
             randomTweet(user_tweeted, water_status = 'wet')
             water_status = 'wet'
-GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
+    GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     return None
 
 # watering function
@@ -241,7 +241,7 @@ try:
     while True:
         twittercheck()
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
-    camera.close()
-    file.close()
+    except KeyboardInterrupt:
+        GPIO.cleanup()
+        camera.close()
+        file.close()
