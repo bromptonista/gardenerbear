@@ -241,7 +241,7 @@ try:
     while True:
         twittercheck()
 
-    except KeyboardInterrupt:
-        GPIO.cleanup()
-        camera.close()
-        file.close()
+except KeyboardInterrupt:
+    GPIO.cleanup()
+    if camera_active: camera.close()
+    file.close()
