@@ -21,19 +21,19 @@ os.chdir(os.path.dirname(os.path.abspath(sys.argv[0]))) # sets script working di
 
 # Import all our secret stuff from the auth.py file; you have to change the settings!!!
 from auth import (
-    consumer_key,
-    consumer_secret,
-    access_token,
-    access_token_secret,
-    smtp_username,
-    smtp_password,
-    smtp_host,
-    smtp_port,
-    smtp_sender,
-    smtp_receivers,
-    message_dead,
-    message_alive
-)
+                  consumer_key,
+                  consumer_secret,
+                  access_token,
+                  access_token_secret,
+                  smtp_username,
+                  smtp_password,
+                  smtp_host,
+                  smtp_port,
+                  smtp_sender,
+                  smtp_receivers,
+                  message_dead,
+                  message_alive
+                  )
 
 # Define some variables to be used later on in our script
 logfile = 'gardenerbear_log.txt' # Define the location of the logfile
@@ -67,7 +67,7 @@ email_warning_dry_sent = 0
 
 def writelog(message):
     '''This function writes to a logfile, and if verbose is true, it will also print
-    the message to the screen'''
+        the message to the screen'''
     if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
     messagetolog = "%s %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
     with open(logfile, "a+") as file: # Open the logfile for writing in append mode
@@ -96,10 +96,10 @@ class MyStreamer(TwythonStreamer):
                 sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
             if "drink water" in str.lower(data['text'].encode('utf-8')):
                 sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
-        # Want to disconnect after the first result?
-        #self.disconnect()
-    def on_error(self, status_code, data):
-        log_message = status_code, data
+    # Want to disconnect after the first result?
+#self.disconnect()
+def on_error(self, status_code, data):
+    log_message = status_code, data
         writelog(log_message)
         GPIO.cleanup()
 # This is our Twitter checking function
@@ -113,7 +113,7 @@ def twittercheck():
         writelog(log_message)
         stream.statuses.filter(track=['gardenerbear'])
     else:
-        log_message = "Twitter is off, ignoring"
+        log_message = "%s, Twitter is off, ignoring" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         writelog(log_message)
         sensorcheck(gardenerbear)
         if water_status == 'wet':
@@ -161,6 +161,26 @@ def randomTweet(user_tweeted, water_status):
                 api.update_status(media_ids=[response['media_id']], status=message)
         else:
             api.update_status(status=message)
+        
+        log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
+        camera = PiCamera()
+        log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
+        timestamp = datetime.now().isoformat()
+        photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
+        log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
+        camera.capture(photo_path)
+        time.sleep(3)
+        camera.close()
+        log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        writelog(log_message)
+        with open(photo_path, 'rb') as photo:
+            response = api.upload_media(media=photo)
+            api.update_status(media_ids=[response['media_id']], status=message)
+            log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            writelog(log_message)
         return None
     except IOError:
         camera.close()
@@ -168,7 +188,7 @@ def randomTweet(user_tweeted, water_status):
 
 # sensor check function
 def sensorcheck(user_tweeted):
-# code to check sensor
+    # code to check sensor
     global water, email_warning_wet_sent, email_warning_dry_sent, water_status
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
@@ -179,32 +199,32 @@ def sensorcheck(user_tweeted):
     GPIO.output(channel_power, GPIO.HIGH)  # power the sensor
     time.sleep(1) # Wait for digital sensor to settle - calibrate your potentiometer, make sure both LEDs light up when in water and only one when dry
     if GPIO.input(channel_digital): # soil is dry if true
-            log_message = "Dry"
+        log_message = "Dry"
             writelog(log_message)
             if email_bot_active:
                 sendEmail(message_dead) # send email
                 log_message = "Sent email that plant is dry"
                 writelog(log_message)
                 email_warning_dry_sent = 1 # only email once
-            if twitter_bot_active:
-                randomTweet(user_tweeted, water_status = 'dry')
+        if twitter_bot_active:
+            randomTweet(user_tweeted, water_status = 'dry')
             if not water:
                 log_message = "Turn on the water!"
                 writelog(log_message)
                 water_the_plants()
                 water_status = 'dry'
-    else: # soil is moist
-            log_message = "Wet"
-            writelog(log_message)
+else: # soil is moist
+    log_message = "Wet"
+        writelog(log_message)
             if email_bot_active:
                 sendEmail(message_alive) # send email
                 log_message = "Sent email that plant is wet"
                 writelog(log_message)
                 email_warning_wet_sent = 1 # only email once
-            if twitter_bot_active:
-                randomTweet(user_tweeted, water_status = 'wet')
+        if twitter_bot_active:
+            randomTweet(user_tweeted, water_status = 'wet')
             water_status = 'wet'
-    GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
+GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     return None
 
 # watering function
@@ -225,7 +245,6 @@ def water_the_plants():
     GPIO.output(channel_relayin2, GPIO.HIGH)  # relay in 2 off
     water = 0
     return None
-
 try:
     while True:
         twittercheck()
