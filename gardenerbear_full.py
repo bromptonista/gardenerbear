@@ -155,8 +155,8 @@ def randomTweet(user_tweeted, water_status):
             camera = PiCamera()
             log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             writelog(log_message)
-            timestamp = datetime.now().isoformat()
-            photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
+            timestamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+            photo_path = 'photos/%s.jpg' % timestamp
             log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             writelog(log_message)
             camera.capture(photo_path)
