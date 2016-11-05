@@ -16,7 +16,7 @@ from picamera import PiCamera # need this to take pictures
 from datetime import datetime
 from twython import Twython # need this for tweeting
 from twython import TwythonStreamer # need this for monitoring Twitter for commands
-file = open("gardenerbear_log.txt", "w") #stores data file in same directory as this program file
+os.chdir(os.path.dirname(os.path.abspath(sys.argv[0]))) # sets script working directory
 
 # Import all our secret stuff from the auth.py file; you have to change the auth-example.py and save it as auth.py
 from auth import (
@@ -33,7 +33,7 @@ from auth import (
     message_dead,
     message_alive
 )
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 logfile = 'gardenerbear_log.txt' # Define the location of the logfile
 
 
@@ -195,13 +195,13 @@ def sensorcheck():
     GPIO.output(channel_power, GPIO.LOW) # turn off sensor power
     if water:
             time.sleep(dry_poll)
-            log_message = "Waiting %s seconds" % dry_poll
+            log_message = "Waiting %s seconds" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), dry_poll)
             writelog(log_message)
             if email_bot_active:
                 email_warning_wet_sent = 0 #
     else:
             time.sleep(wet_poll)
-            log_message = "Waiting %s seconds" % wet_poll
+            log_message = "Waiting %s seconds" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), wet_poll)
             writelog(log_message)
             if email_bot_active:
                 email_warning_dry_sent = 0
@@ -214,7 +214,7 @@ def water_the_plants():
     GPIO.setup(channel_relayin2, GPIO.OUT)
     GPIO.output(channel_relayin2, GPIO.LOW)  # relay in 1 on, should turn on pump - but your relay may need to set HIGH for on
     watering_time = 20
-    log_message = "Watering %s seconds" % watering_time
+    log_message = "%s Watering %s seconds" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), watering_time)
     time.sleep(watering_time) #  seconds watering
     writelog(log_message)
     #GPIO.output(channel_relayin1, GPIO.LOW)  # relay in 1 on, should turn off pump
