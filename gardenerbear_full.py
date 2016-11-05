@@ -108,7 +108,7 @@ def twittercheck():
         # Get the stream
         log_message = "%s Tracking Twitter" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         writelog(log_message)
-        stream.statuses.filter(track=['gardenerbear'])
+        stream.statuses.filter(track=['@gardenerbear'])
     else:
         log_message = "%s, Twitter is off, ignoring" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         writelog(log_message)
