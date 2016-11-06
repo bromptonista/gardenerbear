@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Version 0.9.4
+# Version 0.9.7
 # This is a Python script that lets you use a raspberry pi to water your plants
 # The live implementation of the script is a modified ELC My First Talking Ted
 #
@@ -42,7 +42,7 @@ tweetsdb = 'tweets.txt' # Define the location of the tweets file
 # Do we want emails or tweets, do we want log messages printed on screen
 email_bot_active = 0 # 0 is inactive, 1 active
 twitter_bot_active = 1 # 0 is inactive, 1 active
-camera_active = 0 # 0 is inactive, 1 active
+camera_active = 1 # 0 is inactive, 1 active
 verbose = 1 # 0 is inactive, 1 active
 
 # How often to check the soil moisture when it's dry (the water is on)
@@ -67,8 +67,8 @@ email_warning_wet_sent = 0
 email_warning_dry_sent = 0
 
 def writelog(message):
-    #This function writes to a logfile, and if verbose is true, it will also print the message to the screen
-    messagetolog = "%s %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
+    # This function writes to a logfile, and if verbose is true, it will also print the message to the screen
+    messagetolog = "%s, %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
     if verbose:print(messagetolog) # Check to see if we are in verbose mode, if so, print the message to the screen
     with open(logfile, "a+") as file: # Open the logfile for writing in append mode
         file.write(messagetolog) # Write the message to the file
@@ -92,10 +92,7 @@ class MyStreamer(TwythonStreamer):
             log_message = "%s tweeted %s at %s" % (data['user']['screen_name'].encode('utf-8'), data['text'].encode('utf-8'), datetime.now().isoformat())
             writelog(log_message)
             # code to water plant
-            if "are you thirsty" in str.lower(data['text'].encode('utf-8')):
-                sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
-            if "drink water" in str.lower(data['text'].encode('utf-8')):
-                sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
+            sensorcheck(user_tweeted = data['user']['screen_name'].encode('utf-8'))
     # Want to disconnect after the first result?
     #self.disconnect()
     def on_error(self, status_code, data):
@@ -111,17 +108,17 @@ def twittercheck():
         # Get the stream
         log_message = "Tracking Twitter"
         writelog(log_message)
-        stream.statuses.filter(track=['gardenerbear'])
+        stream.statuses.filter(track=['@gardenerbear'])
     else:
         log_message = "Twitter is off, ignoring"
         writelog(log_message)
         sensorcheck(gardenerbear)
         if water_status == 'wet':
-            log_message = "Sleeping %s seconds" % wet_poll
+            log_message = "%s Sleeping %s seconds" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), wet_poll)
             writelog(log_message)
             sleep(wet_poll)
         if water_status == 'dry':
-            log_message = "Sleeping %s seconds" % dry_poll
+            log_message = "%s Sleeping %s seconds" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), dry_poll)
             writelog(log_message)
             sleep(dry_poll)
 # CPU temp function
@@ -146,6 +143,7 @@ def randomTweet(user_tweeted, water_status):
             writelog(log_message)
         elif water_status == 'wet':
             message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
+            sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
         if camera_active:
@@ -154,8 +152,8 @@ def randomTweet(user_tweeted, water_status):
             camera = PiCamera()
             log_message = "Camera Started"
             writelog(log_message)
-            timestamp = datetime.now().isoformat()
-            photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
+            timestamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
+            photo_path = 'photos/%s.jpg' % timestamp
             log_message = "Taking Picture"
             writelog(log_message)
             camera.capture(photo_path)
@@ -181,6 +179,8 @@ def randomTweet(user_tweeted, water_status):
 def sensorcheck(user_tweeted):
     # code to check sensor
     global water, email_warning_wet_sent, email_warning_dry_sent, water_status
+    log_message = "Checking Soil Hygrometer"
+    writelog(log_message)
     # Set our GPIO numbering to BCM
     GPIO.setmode(GPIO.BCM)
     # Set the GPIO pin to an output

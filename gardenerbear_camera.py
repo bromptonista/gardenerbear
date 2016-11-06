@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Version 0.9.4
+# Version 0.9.7
 # This is a Python script that lets you use a raspberry pi to water your plants
 # The live implementation of the script is a modified ELC My First Talking Ted
 #
@@ -35,10 +35,9 @@ camera_active = 1 # 0 is inactive, 1 active
 verbose = 1 # 0 is inactive, 1 active
 
 def writelog(message):
-    '''This function writes to a logfile, and if verbose is true, it will also print
-        the message to the screen'''
-    if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
-    messagetolog = "%s %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
+    # This function writes to a logfile, and if verbose is true, it will also print the message to the screen
+    messagetolog = "%s, %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
+    if verbose:print(messagetolog) # Check to see if we are in verbose mode, if so, print the message to the screen
     with open(logfile, "a+") as file: # Open the logfile for writing in append mode
         file.write(messagetolog) # Write the message to the file
 
@@ -68,28 +67,28 @@ def randomTweet(user_tweeted, water_status):
             log_message = "Tweeted %s" % message
             writelog(log_message)
         if camera_active:
-            log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Starting Camera"
             writelog(log_message)
             camera = PiCamera()
-            log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Camera Started"
             writelog(log_message)
             timestamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
             photo_path = 'photos/%s.jpg' % timestamp
-            log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Taking Picture"
             writelog(log_message)
             camera.capture(photo_path)
             time.sleep(3)
             camera.close()
-            log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Closed Camera"
             writelog(log_message)
             with open(photo_path, 'rb') as photo:
                 response = api.upload_media(media=photo)
                 api.update_status(media_ids=[response['media_id']], status=message)
-                log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                log_message = "Tweet Success"
                 writelog(log_message)
         else:
             api.update_status(status=message)
-            log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Tweet Success"
             writelog(log_message)
         return None
     except IOError:
@@ -98,19 +97,19 @@ def randomTweet(user_tweeted, water_status):
 # Camera function
 def takeapicture():
     if camera_active:
-        log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_message = "Starting Camera"
         writelog(log_message)
         camera = PiCamera()
-        log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_message = "Camera Started"
         writelog(log_message)
         timestamp = time.strftime("%Y-%m-%d_%H%M%S", time.localtime())
         photo_path = 'photos/%s.jpg' % timestamp
-        log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_message = "Taking Picture"
         writelog(log_message)
         camera.capture(photo_path)
         time.sleep(3)
         camera.close()
-        log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_message = "Closed Camera"
         writelog(log_message)
 try:
     takeapicture()

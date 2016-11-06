@@ -1,5 +1,5 @@
 #!/bin/sh
-# Version 0.9.4
+# Version 0.9.7
 if ps -ef | grep -v grep | grep gardenerbear_full.py ; then
 	#Write note to Logfile
         cd "${0%/*}"
