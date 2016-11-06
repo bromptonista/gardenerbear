@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# Version 0.9.4
 # This is a Python script that lets you use a raspberry pi to water your plants
 # The live implementation of the script is a modified ELC My First Talking Ted
 #
@@ -66,10 +67,9 @@ email_warning_wet_sent = 0
 email_warning_dry_sent = 0
 
 def writelog(message):
-    '''This function writes to a logfile, and if verbose is true, it will also print
-        the message to the screen'''
-    if verbose:print(message) # Check to see if we are in verbose mode, if so, print the message to the screen
+    #This function writes to a logfile, and if verbose is true, it will also print the message to the screen
     messagetolog = "%s %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(message))
+    if verbose:print(messagetolog) # Check to see if we are in verbose mode, if so, print the message to the screen
     with open(logfile, "a+") as file: # Open the logfile for writing in append mode
         file.write(messagetolog) # Write the message to the file
 
@@ -113,7 +113,7 @@ def twittercheck():
         writelog(log_message)
         stream.statuses.filter(track=['gardenerbear'])
     else:
-        log_message = "%s, Twitter is off, ignoring" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        log_message = "Twitter is off, ignoring"
         writelog(log_message)
         sensorcheck(gardenerbear)
         if water_status == 'wet':
@@ -146,32 +146,31 @@ def randomTweet(user_tweeted, water_status):
             writelog(log_message)
         elif water_status == 'wet':
             message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
-            sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
         if camera_active:
-            log_message = "%s Starting Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Starting Camera"
             writelog(log_message)
             camera = PiCamera()
-            log_message = "%s Camera Started" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Camera Started"
             writelog(log_message)
             timestamp = datetime.now().isoformat()
             photo_path = '/home/pi/Moisture-Sensor/photos/%s.jpg' % timestamp
-            log_message = "%s Taking Picture" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Taking Picture"
             writelog(log_message)
             camera.capture(photo_path)
             time.sleep(3)
             camera.close()
-            log_message = "%s Closed Camera" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Closed Camera"
             writelog(log_message)
             with open(photo_path, 'rb') as photo:
                 response = api.upload_media(media=photo)
                 api.update_status(media_ids=[response['media_id']], status=message)
-                log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                log_message = "Tweet Success"
                 writelog(log_message)
         else:
             api.update_status(status=message)
-            log_message = "%s Tweet Success" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            log_message = "Tweet Success"
             writelog(log_message)
         return None
     except IOError:
