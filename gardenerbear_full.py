@@ -138,11 +138,11 @@ def randomTweet(user_tweeted, water_status):
         randomChoice = random.randrange(len(tweetsList))
         cputemp = PiCPUtemp()
         if water_status == 'dry':
-            message = "Dear @%s, %s BTW, I need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
+            message = "Dear @%s, %s BTW, I'm watering the plants! My CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
             log_message = "Tweeted %s" % message
             writelog(log_message)
         elif water_status == 'wet':
-            message = "Dear @%s, %s BTW, I don't need watering and my CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
+            message = "Dear @%s, %s BTW, plants don't need water. My CPU temp is %sºC" % (user_tweeted, tweetsList[randomChoice].rstrip('\n'), cputemp)
             sys.stdout.write("{} {}\n".format(len(message), message))
             log_message = "Tweeted %s" % message
             writelog(log_message)
